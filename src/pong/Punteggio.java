@@ -20,14 +20,18 @@ import java.util.List;
 public class Punteggio {
 
     // scrivete qui i campi che vi servono
-
+    private final int puntiPerVincere;
+    private final int scartoMinimo;
+    private List<Lato> storiaPunti;
     /**
      * Una partita nuova, 0 a 0, con la sua regola per vincere.
      * Pretende: puntiPerVincere è almeno 1; scartoMinimo è almeno 1.
      * Promette: una partita 0 a 0, non finita, senza vincitore e con la storia vuota.
      */
     public Punteggio(int puntiPerVincere, int scartoMinimo) {
-        // scrivete qui
+        this.puntiPerVincere = puntiPerVincere;
+        this.scartoMinimo = scartoMinimo;
+        this.storiaPunti = new ArrayList<>();
     }
 
     /**
@@ -39,7 +43,10 @@ public class Punteggio {
      *           Se la partita era già finita, non cambia niente.
      */
     public void segnaPunto(Lato chi) {
-        // scrivete qui
+       if (isFinita()){
+        return;
+       } 
+       storiaPunti.add(chi);
     }
 
     /**
@@ -47,21 +54,43 @@ public class Punteggio {
      * Promette: i punti del lato chi. Non cambia niente.
      */
     public int getPunti(Lato chi) {
-        return 0; // scrivete qui
+        int punti = 0;
+        for(Lato l : storiaPunti){
+            if(l == chi){
+                punti++;
+            }
+        }
+        return punti;
     }
 
     /**
      * Promette: vero se la partita è finita, cioè se un lato ha vinto. Non cambia niente.
      */
     public boolean isFinita() {
-        return false; // scrivete qui
+        int puntiSinistra = getPunti(Lato.SINISTRA);
+        int puntiDestra = getPunti(Lato.DESTRA);
+
+        boolean vinceSinistra = puntiSinistra >= puntiPerVincere && (puntiSinistra - puntiDestra) >=scartoMinimo;
+        boolean vinceDestra = puntiDestra >= puntiPerVincere && (puntiDestra - puntiSinistra) >= scartoMinimo;
+
+        return vinceSinistra || vinceDestra;
     }
 
     /**
      * Promette: il lato che ha vinto; null se la partita non è finita. Non cambia niente.
      */
     public Lato getVincitore() {
-        return null; // scrivete qui
+        int puntiSinistra = getPunti(Lato.SINISTRA);
+        int puntiDestra = getPunti(Lato.DESTRA);
+
+        if (puntiSinistra >= puntiPerVincere && (puntiSinistra - puntiDestra) >= scartoMinimo){
+            return Lato.SINISTRA;
+        }
+
+        if (puntiDestra >= puntiPerVincere && (puntiDestra - puntiSinistra) >= scartoMinimo){
+            return Lato.DESTRA;
+        }
+        return null;
     }
 
     /**
@@ -73,7 +102,9 @@ public class Punteggio {
      *           niente.
      */
     public void annullaUltimoPunto() {
-        // scrivete qui
+        if(!storiaPunti.isEmpty()) {
+            storiaPunti.remove(storiaPunti.size()-1);
+        }
     }
 
     /**
@@ -87,7 +118,7 @@ public class Punteggio {
      *           segnati dopo; chi la usa non deve contare né sull'una né sull'altra cosa.
      */
     public List<Lato> getStoria() {
-        return new ArrayList<>(); // scrivete qui
+        return List.copyOf(storiaPunti);
     }
 
     /**
@@ -96,6 +127,6 @@ public class Punteggio {
      * Promette: 0 a 0, non finita, senza vincitore, storia vuota; la regola per vincere non cambia.
      */
     public void azzera() {
-        // scrivete qui
+        storiaPunti.clear();
     }
 }
